@@ -11,7 +11,7 @@ namespace ProducerApp.API.Controllers
 
         public MessagesController()
         {
-            var connection = new RabbitMqConnection("rabbitmq", "", "");
+            var connection = new RabbitMqConnection("rabbitmq", "guest", "guest");
             _publisher = new RabbitMqPublisher(connection);
         }
 
