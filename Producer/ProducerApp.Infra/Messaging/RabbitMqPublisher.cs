@@ -12,23 +12,36 @@ namespace ProducerApp.Infra.Messaging
             _connection = connection;
         }
 
-        public void Publish(string queueName, string message)
+        public void Publish(string message)
         {
-            using var connection = _connection.CreateConnection();
+            var connection = _connection.GetConnection();
+
             using var channel = connection.CreateModel();
 
+            channel.ExchangeDeclare(
+                exchange: "meu-exchange-fanout",
+                type: ExchangeType.Fanout,
+                durable: false,
+                autoDelete: false,
+                arguments: null);
+
             channel.QueueDeclare(
-                queue: queueName,
+                queue: "demo-queue",
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
 
+            channel.QueueBind(
+                queue: "demo-queue",
+                exchange: "meu-exchange-fanout",
+                routingKey: "");
+
             var body = Encoding.UTF8.GetBytes(message);
 
             channel.BasicPublish(
-                exchange: "",
-                routingKey: queueName,
+                exchange: "meu-exchange-fanout",
+                routingKey: "",
                 basicProperties: null,
                 body: body);
         }

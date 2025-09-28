@@ -2,9 +2,10 @@
 
 namespace ProducerApp.Infra.Messaging
 {
-    public class RabbitMqConnection
+    public class RabbitMqConnection : IDisposable
     {
         private readonly ConnectionFactory _factory;
+        private IConnection? _connection;
 
         public RabbitMqConnection(string hostName, string userName, string password)
         {
@@ -15,9 +16,23 @@ namespace ProducerApp.Infra.Messaging
                 Password = password
             };
         }
-        public IConnection CreateConnection()
+
+        public IConnection GetConnection()
         {
-            return _factory.CreateConnection();
+            if (_connection == null || !_connection.IsOpen)
+            {
+                _connection = _factory.CreateConnection();
+            }
+            return _connection;
+        }
+
+        public void Dispose()
+        {
+            if (_connection != null && _connection.IsOpen)
+            {
+                _connection.Close();
+                _connection.Dispose();
+            }
         }
     }
 }

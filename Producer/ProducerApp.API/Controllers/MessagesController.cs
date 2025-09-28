@@ -9,16 +9,15 @@ namespace ProducerApp.API.Controllers
     {
         private readonly RabbitMqPublisher _publisher;
 
-        public MessagesController()
+        public MessagesController(RabbitMqPublisher publisher)
         {
-            var connection = new RabbitMqConnection("rabbitmq", "guest", "guest");
-            _publisher = new RabbitMqPublisher(connection);
+            _publisher = publisher;
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] string message)
         {
-            _publisher.Publish("demo-queue", message);
+            _publisher.Publish(message);
             return Ok(new { Status = "Mensagem enviada!" });
         }
     }
